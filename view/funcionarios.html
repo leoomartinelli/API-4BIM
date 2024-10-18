@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <input type="text" id="txtIFuncionario" placeholder="" disabled>
+    </div>
+    <div>
+        <input type="text" id="txtNomeFuncionario" placeholder="Nome">
+    </div>
+    <div>
+        <input type="text" id="txtEmail" placeholder="email">
+    </div>
+    <div>
+        <input type="password" id="txtSenha" placeholder="senha">
+    </div>
+    <div>
+        <select id="cboCargos">
+
+        </select>
+    </div>
+    <div>
+        <input type="checkbox" id="chxRecebeValeTransporte"> Recebe Vale Transporte
+    </div>
+
+
+
+    <div>
+        <button id="btnCadastrar">Cadastrar</button>
+    </div>
+    <div id="divDados">
+
+    </div>
+</body>
+<script>
+    let JSON_CARGOS = {};
+    let JSON_FUNCIONARIOS = {};
+
+    const dadosLocalStorage = localStorage.getItem("dados");
+    const objUsuario = JSON.parse(dadosLocalStorage);
+
+    const txtIFuncionario = document.getElementById("txtIFuncionario");
+    const txtNomeFuncionario = document.getElementById("txtNomeFuncionario");
+    const txtEmail = document.getElementById("txtEmail");
+    const txtSenha = document.getElementById("txtSenha");
+    const chxRecebeValeTransporte = document.getElementById("chxRecebeValeTransporte");
+    const cboCargos = document.getElementById("cboCargos");
+    const btnCadastrar = document.getElementById("btnCadastrar");
+
+    const divDados = document.getElementById("divDados");
+    const tabela = document.createElement("table");
+    const linha1 = document.createElement("tr");
+
+    const td0 = document.createElement("td");
+    const td1 = document.createElement("td");
+    const td2 = document.createElement("td");
+    const td3 = document.createElement("td");
+    const td4 = document.createElement("td");
+    const td5 = document.createElement("td");
+    const td6 = document.createElement("td");
+    const td7 = document.createElement("td");
+
+
+    td0.appendChild(document.createTextNode("id"));
+    td1.appendChild(document.createTextNode("nome"));
+    td2.appendChild(document.createTextNode("email"));
+    td3.appendChild(document.createTextNode("Vale Transporte"));
+    td4.appendChild(document.createTextNode("Cargo"));
+    td5.appendChild(document.createTextNode("Selecionar"));
+    td6.appendChild(document.createTextNode("Atualizar"));
+    td7.appendChild(document.createTextNode("Excluir"));
+
+
+
+    divDados.appendChild(tabela);
+    tabela.appendChild(linha1);
+
+    linha1.appendChild(td0);
+    linha1.appendChild(td1);
+    linha1.appendChild(td2);
+    linha1.appendChild(td3);
+    linha1.appendChild(td4);
+    linha1.appendChild(td5);
+    linha1.appendChild(td6);
+    linha1.appendChild(td7);
+
+    btnCadastrar.onclick = function () {
+        post_funcionarios();
+    }
+
+    get_cargos();
+    get_funcionarios();
+
+
+    function limparTabela() {
+        var qtdLinas = 1;
+        var totalLinhas = tabela.rows.length;
+        for (let i = qtdLinas; i < totalLinhas; i++) {
+            tabela.deleteRow(qtdLinas);
+        }
+
+    }
+
+    function delete_funcionario(idFuncionario) {
+
+    }
+
+    function update_funcionario() {
+
+        const id = txtIFuncionario.value;
+        const nome = txtNomeFuncionario.value
+        const email = txtEmail.value;
+        const idCargo = cboCargos.value;
+        const senha = txtSenha.value;
+        let valeTransporte = chxRecebeValeTransporte.checked
+
+        if(nome==""){
+            alert("o nome não pode ser vazio");
+            return;
+        }
+
+        if(valeTransporte==true){
+            valeTransporte=1
+        }else{
+            valeTransporte=0;
+        }
+
+        const corpo = {
+            "funcionario": {
+                "nomeFuncionario": nome,
+                "email": email,
+                "senha": senha,
+                "recebeValeTransporte": valeTransporte,
+                "Cargo_idCargo": idCargo
+            }
+        }
+        const URI = "/funcionarios/"+id;
+        fetch(URI, {
+            method: "PUT",
+            body: JSON.stringify(corpo),
+            headers: {
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            console.log(respostaConvertida);
+
+            const objResposta = JSON.parse(respostaConvertida);
+            if (objResposta.status == false) {
+                alert(objResposta.msg);
+            }
+
+        }).catch(erro => {
+            console.log(erro);
+        });
+    }
+
+    function selecionarFuncionario(funcionario) {
+
+        txtIFuncionario.value = funcionario.idFuncionario;
+        txtNomeFuncionario.value = funcionario.nomeFuncionario;
+        txtEmail.value = funcionario.email;
+
+        cboCargos.value = funcionario.idCargo;
+        if (funcionario.recebeValeTransporte == 1) {
+            chxRecebeValeTransporte.checked = true;
+        } else {
+            chxRecebeValeTransporte.checked = false;
+        }
+
+      
+
+    }
+    function construirTabela(JSON_FUNCIONARIOS, filtro) {
+        console.log("construirTabela()");
+        console.log(JSON_FUNCIONARIOS);
+        limparTabela();
+
+        for (let funcionario of JSON_FUNCIONARIOS) {
+
+            let nome = funcionario.nomeFuncionario;
+            let linhaFuncionario = document.createElement("tr");
+
+            const td0 = document.createElement("td");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            const td4 = document.createElement("td");
+            const td5 = document.createElement("td");
+            const td6 = document.createElement("td");
+            const td7 = document.createElement("td");
+
+            td0.appendChild(document.createTextNode(funcionario.idFuncionario));
+            td1.appendChild(document.createTextNode(funcionario.nomeFuncionario));
+            td2.appendChild(document.createTextNode(funcionario.email));
+            td3.appendChild(document.createTextNode(funcionario.recebeValeTransporte));
+            td4.appendChild(document.createTextNode(funcionario.nomeCargo));
+
+
+            const btnSelecionar = document.createElement("button");
+            btnSelecionar.appendChild(document.createTextNode("selecionar"));
+            td5.appendChild(btnSelecionar);
+            btnSelecionar.onclick = function () {
+                const obj = funcionario;
+                selecionarFuncionario(obj);
+            }
+
+            const btnAtualizar = document.createElement("button");
+            btnAtualizar.appendChild(document.createTextNode("Atualizar"));
+            btnAtualizar.onclick = function(){
+                update_funcionario();;
+            }
+            td6.appendChild(btnAtualizar);
+
+
+            const btnExcluir = document.createElement("button");
+            btnExcluir.appendChild(document.createTextNode("Excluir"));
+            td7.appendChild(btnExcluir);
+
+            linhaFuncionario.appendChild(td0);
+            linhaFuncionario.appendChild(td1);
+            linhaFuncionario.appendChild(td2);
+            linhaFuncionario.appendChild(td3);
+            linhaFuncionario.appendChild(td4);
+            linhaFuncionario.appendChild(td5);
+            linhaFuncionario.appendChild(td6);
+            linhaFuncionario.appendChild(td7);
+            tabela.appendChild(linhaFuncionario);
+        }
+
+
+
+        /*
+            "idFuncionario": 67,
+                "nomeFuncionario": "hELIO",
+                "email": "helioesperidiao@gmail.com",
+                "recebeValeTransporte": 1,
+                "idCargo": 25,
+                "nomeCargo": "Analista de Marketing"
+        */
+    }
+
+    function montarCombo() {
+        //console.log(JSON_CARGOS);
+        for (let cargo of JSON_CARGOS) {
+            const nomeCargo = cargo.nomeCargo;
+            const idCargo = cargo.idCargo;
+            const option = document.createElement("option");
+            option.value = idCargo;
+            option.text = nomeCargo;
+            cboCargos.appendChild(option);
+        }
+    }
+    function post_funcionarios() {
+        const URI = "/funcionarios/"
+        console.log(URI);
+
+        const nome = txtNomeFuncionario.value;
+        const email = txtEmail.value;
+        const senha = txtSenha.value;
+        const idCargo = cboCargos.value;
+        let recebeValeTransporte = chxRecebeValeTransporte.checked;
+        if (recebeValeTransporte == true) {
+            recebeValeTransporte = 1;
+        } else {
+            recebeValeTransporte = 0;
+        }
+
+        const corpo = {
+            "funcionario": {
+                "nomeFuncionario": nome,
+                "email": email,
+                "senha": senha,
+                "recebeValeTransporte": recebeValeTransporte,
+                "Cargo_idCargo": idCargo
+            }
+        };
+        console.log(corpo);
+
+        fetch(URI, {
+            method: "POST",
+            body: JSON.stringify(corpo),
+            headers: {
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            console.log(respostaConvertida);
+
+            const objResposta = JSON.parse(respostaConvertida);
+            if (objResposta.status == false) {
+                alert(objResposta.msg);
+            }
+
+        }).catch(erro => {
+            console.log(erro);
+        });
+    }
+    function get_cargos() {
+        const URI = "/cargos/"
+        console.log(URI);
+        fetch(URI, {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            //console.log(respostaConvertida);
+            JSON_CARGOS = JSON.parse(respostaConvertida);
+            JSON_CARGOS = JSON_CARGOS.cargos;
+            montarCombo();
+        }).catch(erro => {
+            console.log(erro);
+        });
+    }
+
+    function get_funcionarios() {
+        const URI = "/funcionarios/"
+        console.log(URI);
+        fetch(URI, {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            //console.log(respostaConvertida);
+            JSON_FUNCIONARIOS = JSON.parse(respostaConvertida);
+            JSON_FUNCIONARIOS = JSON_FUNCIONARIOS.funcionarios;
+            construirTabela(JSON_FUNCIONARIOS, null);
+        }).catch(erro => {
+            console.log(erro);
+        });
+    }
+</script>
+
+</html>
+<!--
+{
+	"funcionario": {
+		"nomeFuncionario": "Hélio",
+		"email": "helioesperidiaoq122@gmail.com",
+		"senha": "123",
+		"recebeValeTransporte": 1,
+		"Cargo_idCargo": 1
+	}
+}
+-->

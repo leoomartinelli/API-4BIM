@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        nome Cargo<input type="text" id="txtNomeCargo">
+    </div>
+    <div>
+        Filtro<input type="text" id="txtFiltro">
+    </div>
+    <div>
+        <button id="btnCadastrar">Cadastrar Cargo</button>
+    </div>
+    <div id="divDados"></div>
+</body>
+<script>
+    let JSON_CARGOS = {};
+    const dadosLocalStorage = localStorage.getItem("dados");
+    const objUsuario = JSON.parse(dadosLocalStorage);
+
+    const divDados = document.getElementById("divDados");
+    const txtCargo = document.getElementById("txtNomeCargo");
+    const txtFiltro = document.getElementById("txtFiltro");
+    txtFiltro.onkeyup = function () {
+        //console.log(txtFiltro.value);
+        construirTabela(JSON_CARGOS, txtFiltro.value);
+    }
+    const btnCadastrar = document.getElementById("btnCadastrar");
+
+    const tabela = document.createElement("table");
+
+    divDados.appendChild(tabela);
+    const linha1 = document.createElement("tr");
+    const td0 = document.createElement("th");
+    const td1 = document.createElement("th");
+    const td2 = document.createElement("th");
+    const td3 = document.createElement("th");
+    const td4 = document.createElement("th");
+    td0.appendChild(document.createTextNode("ID"));
+    td1.appendChild(document.createTextNode("NOME DO CARGO"));
+    td2.appendChild(document.createTextNode("EXCLUIR"));
+    td3.appendChild(document.createTextNode("Selecionar"));
+    td4.appendChild(document.createTextNode("Atualizar"));
+    linha1.appendChild(td0);
+    linha1.appendChild(td1);
+    linha1.appendChild(td2);
+    linha1.appendChild(td3);
+    linha1.appendChild(td4);
+
+    get_cargos();
+
+    btnCadastrar.onclick = function () {
+        post_cargos();
+    }
+
+    function limparTabela() {
+        var qtdLinas = 1;
+        var totalLinhas = tabela.rows.length;
+        for (let i = qtdLinas; i < totalLinhas; i++) {
+            tabela.deleteRow(qtdLinas);
+        }
+
+    }
+    function delete_cargo(idCargo) {
+        const URI = "/cargos/" + idCargo;
+        console.log(URI);
+        fetch(URI, {
+            method: "DELETE",
+            headers: {
+
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            console.log(respostaConvertida);
+            get_cargos();
+        }).catch(erro => {
+            console.log(erro);
+        })
+    }
+    function construirTabela(objJson, filtro) {
+        limparTabela();
+
+
+        const cargos = objJson.cargos;
+
+
+        tabela.appendChild(linha1);
+        for (let cargo of cargos) {
+
+            let nomeCargo = cargo.nomeCargo;
+            nomeCargo = nomeCargo.toLowerCase();
+            filtro = filtro.toLowerCase();
+            if (nomeCargo.includes(filtro) == false) {
+                continue;
+            }
+            const linha1 = document.createElement("tr");
+            const btnExcluir = document.createElement("button");
+            btnExcluir.appendChild(document.createTextNode("Excluir"));
+            btnExcluir.onclick = function () {
+                const idCargo = cargo.idCargo;
+                delete_cargo(idCargo);
+            }
+
+
+            const txtAlterar = document.createElement("input");
+            txtAlterar.type = 'text';
+            txtAlterar.value = cargo.nomeCargo;
+            txtAlterar.disabled = true;
+
+            const btnSelecionar = document.createElement("button");
+            btnSelecionar.appendChild(document.createTextNode("Selecionar"));
+            btnSelecionar.onclick = function () {
+                txtAlterar.disabled = false;
+
+                //const idCargo = cargo.idCargo;
+                //txtCargo.value = cargo.nomeCargo;
+            }
+
+            const btnAtualizar = document.createElement("button");
+            btnAtualizar.appendChild(document.createTextNode("Atualizar"));
+
+            btnAtualizar.onclick = function () {
+                const idCargo = cargo.idCargo;
+                const txt = txtAlterar;
+                txt.disabled = true;
+                const nomeCargo = txt.value;
+                
+                put_cargos(idCargo,nomeCargo);
+            }
+
+            const td0 = document.createElement("td");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            const td4 = document.createElement("td");
+
+
+
+            td0.appendChild(document.createTextNode(cargo.idCargo));
+            td1.appendChild(txtAlterar);
+
+            td2.appendChild(btnExcluir);
+            td3.appendChild(btnSelecionar);
+            td4.appendChild(btnAtualizar);
+
+            linha1.appendChild(td0);
+            linha1.appendChild(td1);
+            linha1.appendChild(td2);
+            linha1.appendChild(td3);
+            linha1.appendChild(td4);
+            tabela.appendChild(linha1);
+        }
+    }
+
+    function get_cargos() {
+        const URI = "/cargos";
+
+        fetch(URI, {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            console.log(respostaConvertida);
+            JSON_CARGOS = JSON.parse(respostaConvertida);
+            construirTabela(JSON_CARGOS, '')
+        }).catch(erro => {
+            console.log(erro);
+        })
+    }
+
+
+    function put_cargos(idCargo,nomeCargo) {
+        const URI = "/cargos/" + idCargo;
+        if (nomeCargo == "") {
+            alert("o nome do cargo não pode ser vazio");
+            return;
+        }
+
+        const objCargo = {
+            cargo: {
+                nomeCargo: nomeCargo
+            }
+        }
+
+        fetch(URI, {
+            method: "PUT",
+            body: JSON.stringify(objCargo),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            const obj = JSON.parse(respostaConvertida);
+            if (obj.status == true) {
+                get_cargos();
+            }
+            console.log(respostaConvertida);
+        }).catch(erro => {
+            console.log(erro);
+        })
+
+    }
+
+    function post_cargos() {
+        const URI = "/cargos";
+        const nomeCargo = txtCargo.value;
+        if (nomeCargo == "") {
+            alert("o nome do cargo não pode ser vazio");
+            return;
+
+        }
+
+        const objCargo = {
+            cargo: {
+                nomeCargo: nomeCargo
+            }
+        }
+
+        fetch(URI, {
+            method: "POST",
+            body: JSON.stringify(objCargo),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + objUsuario.token
+            }
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            const obj = JSON.parse(respostaConvertida);
+            if (obj.status == true) {
+                get_cargos();
+            }
+            console.log(respostaConvertida);
+        }).catch(erro => {
+            console.log(erro);
+        })
+
+    }
+
+</script>
+
+</html>

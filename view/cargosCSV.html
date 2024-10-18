@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="file" id="txtArquivo">
+    <button id="btnEnviar">Enviar CSV</button>
+
+</body>
+
+
+<script>
+
+    const dadosLocalStorage = localStorage.getItem("dados");
+    const objUsuario = JSON.parse(dadosLocalStorage);
+
+    const txtArquivo = document.getElementById('txtArquivo');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    btnEnviar.onclick = function () {
+        const dados = new FormData();
+        dados.append('variavelArquivo', txtArquivo.files[0]);
+
+        const URI = "/cargos/csv/";
+        fetch(URI, {
+            method: "POST",
+            body: dados,
+            headers: {
+                'Authorization': 'Bearer ' + objUsuario.token
+            }        
+        }).then((resposta) => {
+            return resposta.text();
+        }).then(respostaConvertida => {
+            console.log(respostaConvertida);
+            const resposta = JSON.parse(respostaConvertida);
+            if (resposta.status == true) {
+                alert("Cargos cadastrados com sucesso");
+            }
+
+        }).catch(erro => {
+            console.log(erro);
+        })
+    }
+
+</script>
+
+</html>
