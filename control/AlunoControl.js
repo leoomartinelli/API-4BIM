@@ -9,22 +9,20 @@ module.exports = class AlunoControl {
 
     
     async create(request, response) {
-        // Cria uma nova instância do modelo Aluno.
-        var aluno = new Aluno();
-        // Atribui os valores do aluno passados no corpo da requisição (request body) à instância criada.
+        const aluno = new Aluno();
+
         aluno.nome = request.body.aluno.nome;
         aluno.email = request.body.aluno.email;
         aluno.senha = request.body.aluno.senha;
-        aluno.turma = request.body.aluno.turma;
-        // Chama o método create() do modelo Aluno para inserir o novo aluno no banco de dados.
+        aluno.idTurma = request.body.aluno.idTurma;  // Certifique-se de que o idTurma é atribuído
+    
         const isCreated = await aluno.create();
-        // Cria um objeto de resposta contendo o código, status e a mensagem de sucesso ou erro.
         const objResposta = {
             cod: 1,
             status: isCreated,
             msg: isCreated ? 'Aluno criado com sucesso' : 'Erro ao criar o aluno'
         };
-        // Envia a resposta HTTP com status 200 e o objeto de resposta.
+    
         response.status(200).send(objResposta);
     }
 
@@ -55,7 +53,7 @@ module.exports = class AlunoControl {
         aluno.nome = request.body.aluno.nome;
         aluno.email = request.body.aluno.email;
         aluno.senha = request.body.aluno.senha;
-        aluno.turma = request.body.aluno.turma;
+        aluno.idTurma = request.body.aluno.idTurma;
         // Chama o método update() do modelo Aluno para atualizar o aluno no banco de dados.
         const isUpdated = await aluno.update();
         // Cria um objeto de resposta com o código, status e a mensagem de sucesso ou erro.

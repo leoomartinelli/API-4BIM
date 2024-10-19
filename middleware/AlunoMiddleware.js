@@ -71,4 +71,18 @@ module.exports = class AlunoMiddleware {
             response.status(400).send(objResposta);
         }
     }
+
+    async validate_idTurma(request, response, next) {
+        const idTurma = request.body.aluno.idTurma;
+    
+        if (!idTurma) {
+            return response.status(400).send({
+                status: false,
+                msg: 'O campo idTurma é obrigatório.'
+            });
+        }
+    
+        next();  // Se o idTurma foi fornecido, continua para a próxima operação
+    }
+    
 };

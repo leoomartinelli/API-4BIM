@@ -5,8 +5,9 @@ const path = require('path');  // Módulo para manipular caminhos de arquivo
 const LoginRouter = require('./router/LoginRouter');
 const AlunoRouter = require('./router/AlunoRouter');
 const ProfessorRouter = require('./router/ProfessorRouter');
-const DiretoriaRouter = require('./router/DiretoriaRouter');
+const TurmaRouter = require('./router/TurmaRouter');
 const MeuTokenJWT = require('./model/MeuTokenJWT');
+
 
 const app = express();
 const portaServico = 8080;
@@ -18,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'view'))); // Configura a pasta 'vie
 const loginRouter = new LoginRouter();
 const alunoRouter = new AlunoRouter();
 const professorRouter = new ProfessorRouter();
-const diretoriaRouter = new DiretoriaRouter();
+const turmaRouter = new TurmaRouter();
 
 app.post('/token/novo', (req, res) => {
     const meuToken = new MeuTokenJWT();
@@ -53,8 +54,8 @@ app.use('/professores',
     professorRouter.createRoutes()
 );
 
-app.use('/diretoria',
-    diretoriaRouter.createRoutes()
+app.use('/turmas',
+    turmaRouter.createRoutes()
 );
 
 // Inicia o servidor, escutando na porta definida, e exibe uma mensagem no console com a URL onde o servidor está rodando.

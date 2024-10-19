@@ -5,11 +5,35 @@ const jwt = require('jsonwebtoken');
 class Aluno {
     // Construtor da classe Aluno que inicializa as propriedades.
     constructor() {
-        this._idAluno = null;  // ID do aluno, inicialmente nulo.
-        this._nome = null;  // Nome do aluno.
-        this._email = null;  // Email do aluno.
-        this._senha = null;  // Senha do aluno.
-        this._turma = null;  // Turma do aluno.
+        this._idAluno = null;
+        this._nome = null;
+        this._email = null;
+        this._senha = null;
+        this._idTurma = null;  // Certifique-se de que idTurma está presente
+    }
+
+    // Método para criar um novo aluno no banco de dados
+    async create() {
+        const conexao = Banco.getConexao();
+        const SQL = 'INSERT INTO aluno (nome, email, senha, idTurma) VALUES (?, ?, MD5(?), ?);';
+
+        try {
+            if (!this._idTurma) {
+                throw new Error('idTurma não pode ser nulo');
+            }
+
+            const [result] = await conexao.promise().execute(SQL, [
+                this._nome,
+                this._email,
+                this._senha,
+                this._idTurma
+            ]);
+            this._idAluno = result.insertId;
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Erro ao criar o aluno:', error);
+            throw error;
+        }
     }
     
     // Método para login de aluno.
@@ -73,19 +97,7 @@ class Aluno {
     }
 
     // Método assíncrono para criar um novo aluno no banco de dados.
-    async create() {
-        const conexao = Banco.getConexao();  // Obtém a conexão com o banco de dados.
-        const SQL = 'INSERT INTO aluno (nome, email, senha, turma) VALUES (?, ?, MD5(?), ?);';
-
-        try {
-            const [result] = await conexao.promise().execute(SQL, [this._nome, this._email, this._senha, this._turma]);
-            this._idAluno = result.insertId;  // Armazena o ID gerado pelo banco de dados.
-            return result.affectedRows > 0;  // Retorna true se a inserção foi bem-sucedida.
-        } catch (error) {
-            console.error('Erro ao criar o aluno:', error);
-            return false;
-        }
-    }
+    
 
     // Método assíncrono para excluir um aluno do banco de dados.
     async delete() {
@@ -104,10 +116,10 @@ class Aluno {
     // Método assíncrono para atualizar os dados de um aluno no banco de dados.
     async update() {
         const conexao = Banco.getConexao();
-        const SQL = 'UPDATE aluno SET nome = ?, email = ?, senha = MD5(?), turma = ? WHERE idAluno = ?;';
+        const SQL = 'UPDATE aluno SET nome = ?, email = ?, senha = MD5(?), idTurma = ? WHERE idAluno = ?;';
 
         try {
-            const [result] = await conexao.promise().execute(SQL, [this._nome, this._email, this._senha, this._turma, this._idAluno]);
+            const [result] = await conexao.promise().execute(SQL, [this._nome, this._email, this._senha, this._idTurma, this._idAluno]);
             return result.affectedRows > 0;
         } catch (error) {
             console.error('Erro ao atualizar o aluno:', error);
@@ -176,12 +188,12 @@ class Aluno {
         this._senha = senha;
     }
 
-    get turma() {
-        return this._turma;
+    set idTurma(idTurma) {
+        this._idTurma = idTurma;
     }
-
-    set turma(turma) {
-        this._turma = turma;
+    
+    get idTurma() {
+        return this._idTurma;
     }
 }
 
