@@ -1,30 +1,8 @@
 const express = require('express');
 const Professor = require('../model/Professor');
-
+const Turma = require('../model/Turma')
 module.exports = class ProfessorControl {
-    async login(request, response) {
-        const professor = new Professor();
-
-        professor.email = request.body.professor.email;
-        professor.senha = request.body.professor.senha;
-
-        const logou = await professor.login();
-        if (logou == true) {
-            const objResposta = {
-                cod: 1,
-                status: logou,
-                msg: 'Logado com sucesso'
-            };
-            response.status(200).send(objResposta);
-        } else {
-            const objResposta = {
-                cod: 2,
-                status: false,
-                msg: "Erro ao efetuar login"
-            };
-            response.status(401).send(objResposta);
-        }
-    }
+   
 
     async readAll(request, response) {
         const professor = new Professor();
@@ -132,7 +110,7 @@ module.exports = class ProfessorControl {
             response.status(200).send(objResposta);
         }
     }
-
+    /*
     async delete(request, response) {
         const professor = new Professor();
         professor.idProfessor = request.params.idProfessor;
@@ -168,6 +146,41 @@ module.exports = class ProfessorControl {
                 }]
             }
             response.status(200).send(objResposta);
+        }
+    }
+    */
+
+    async delete(request, response) {
+        const professor = new Professor();
+        const turma = new Turma();
+        
+        // Obtém o ID do professor da requisição
+        professor.idProfessor = request.params.idProfessor;
+
+        // Verifica se o professor está associado a alguma turma
+        const turmasAssociadas = await turma.getTurmasByProfessor(professor.idProfessor);
+
+        if (turmasAssociadas.length > 0) {
+            // Se o professor está associado a turmas, não pode ser excluído
+            return response.status(400).send({
+                status: false,
+                msg: 'Não é possível excluir o professor, pois ele está associado a uma ou mais turmas.'
+            });
+        }
+
+        // Se não estiver associado a nenhuma turma, pode ser excluído
+        const excluiu = await professor.delete();
+
+        if (excluiu) {
+            return response.status(200).send({
+                status: true,
+                msg: 'Professor excluído com sucesso.'
+            });
+        } else {
+            return response.status(500).send({
+                status: false,
+                msg: 'Erro ao excluir o professor.'
+            });
         }
     }
 

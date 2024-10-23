@@ -3,69 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Aluno</title>
+    <title>Login - Aluno e Professor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            background-color: #f0f0f0;
         }
-        .login-container {
-            background-color: #fff;
-            padding: 20px;
+        .container {
+            background-color: white;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
             width: 300px;
-        }
-        .login-container h2 {
             text-align: center;
+        }
+        h2 {
             margin-bottom: 20px;
         }
-        .login-container label {
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
             display: block;
             margin-bottom: 5px;
         }
-        .login-container input[type="text"],
-        .login-container input[type="password"] {
+        .form-group input {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
+            padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        .login-container button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007BFF;
+        .toggle-login {
+            cursor: pointer;
+            color: blue;
+            margin-top: 10px;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
             color: white;
+            padding: 10px;
             border: none;
             border-radius: 4px;
+            width: 100%;
             cursor: pointer;
-            font-size: 16px;
         }
-        .login-container button:hover {
-            background-color: #0056b3;
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: white;
+            background-color: red;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+       
+        .success-message {
+            color: white;
+            background-color: green;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+       
+        .toggle-login {
+            cursor: pointer;
+            color: blue;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h2>Login do Aluno</h2>
-        <form id="loginForm" action="/aluno/login" method="POST">
-            <label for="email">Email:</label>
-            <input type="text" id="email" name="aluno[email]" required>
+<div class="container">
+    <h2>Login do Aluno</h2>
+    
+    <!-- Placeholder para a mensagem de erro -->
+    <p id="errorMessage" class="error-message" style="display: none;">Erro: Email ou senha inválidos.</p>
+    <p id="successMessage" class="success-message" style="display: none;">Login realizado com sucesso!</p>
+    
+    <!-- Formulário de Login do Aluno -->
+    <form id="loginAluno" class="login-form">
+        <div class="form-group">
+            <label for="emailAluno">Email do Aluno</label>
+            <input type="email" id="emailAluno" placeholder="Digite o email do aluno" required>
+        </div>
+        <div class="form-group">
+            <label for="senhaAluno">Senha do Aluno</label>
+            <input type="password" id="senhaAluno" placeholder="Digite a senha do aluno" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
 
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="aluno[senha]" required>
+    <!-- Formulário de Login do Professor (inicialmente oculto) -->
+    <form id="loginProfessor" class="login-form" style="display: none;">
+        <h2>Login do Professor</h2>
+        <div class="form-group">
+            <label for="emailProfessor">Email do Professor</label>
+            <input type="email" id="emailProfessor" placeholder="Digite o email do professor" required>
+        </div>
+        <div class="form-group">
+            <label for="senhaProfessor">Senha do Professor</label>
+            <input type="password" id="senhaProfessor" placeholder="Digite a senha do professor" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
 
-            <button type="submit">Entrar</button>
-        </form>
-    </div>
+    <!-- Botão para alternar entre login de aluno e professor -->
+    <span class="toggle-login" onclick="toggleLogin()">Entrar como Professor</span>
+</div>
+
+<script>
+    document.getElementById('loginAluno').addEventListener('submit', async function(event) {
+    event.preventDefault(); // Previne o envio padrão do formulário
+
+    const email = document.getElementById('emailAluno').value;
+    const senha = document.getElementById('senhaAluno').value;
+
+    // Fazendo a requisição de login para o backend
+    try {
+        const response = await fetch('/login', {  // Ajuste a URL conforme a rota de login do seu backend
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, senha: senha })
+        });
+
+        const data = await response.json();
+
+        if (data.status === true) {
+            // Se o login for bem-sucedido, redireciona para a página escola.html
+            window.location.href = 'escola.html';  // Redireciona para a tela da escola
+        } else {
+            // Se o login falhar, mostra uma mensagem de erro
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Erro: ' + data.msg;
+        }
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+    }
+});
+
+
+    
+    let isAlunoLogin = true;
+
+    function toggleLogin() {
+        const alunoForm = document.getElementById('loginAluno');
+        const professorForm = document.getElementById('loginProfessor');
+        const toggleText = document.querySelector('.toggle-login');
+
+        if (isAlunoLogin) {
+            alunoForm.style.display = 'none';
+            professorForm.style.display = 'block';
+            toggleText.textContent = 'Entrar como Aluno';
+        } else {
+            alunoForm.style.display = 'block';
+            professorForm.style.display = 'none';
+            toggleText.textContent = 'Entrar como Professor';
+        }
+
+        isAlunoLogin = !isAlunoLogin;
+    }
+
+    document.getElementById('loginProfessor').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Previne o envio padrão do formulário
+
+        // Esconde a mensagem de erro antes de cada tentativa de login
+        document.getElementById('errorMessage').style.display = 'none';
+
+        // Obtém os valores do formulário
+        const email = document.getElementById('emailProfessor').value;
+        const senha = document.getElementById('senhaProfessor').value;
+
+        // Fazendo a requisição de login para o backend
+        try {
+            const response = await fetch('http://localhost:8080/loginProfessor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, senha: senha })
+            });
+
+            if (response.status === 401) {
+                // Se o login falhar, exibe uma mensagem de erro
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = 'Erro: Email ou senha inválidos';
+            } else if (response.ok) {
+                // Se o login for bem-sucedido, redireciona para Professor.html
+                window.location.href = 'Professor.html';
+            } else {
+                throw new Error('Erro desconhecido ao fazer login');
+            }
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'Erro: Não foi possível realizar o login.';
+        }
+    });
+    
+</script>
+
 
 </body>
 </html>

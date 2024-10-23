@@ -7,6 +7,8 @@ const AlunoRouter = require('./router/AlunoRouter');
 const ProfessorRouter = require('./router/ProfessorRouter');
 const TurmaRouter = require('./router/TurmaRouter');
 const MeuTokenJWT = require('./model/MeuTokenJWT');
+const LoginControlProfessor = require('./control/LoginControProfessor');
+const LoginProfessorRouter = require('./router/LoginProfessorRouter');
 
 
 const app = express();
@@ -16,6 +18,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'view'))); // Configura a pasta 'view' como estática
 
 // Instanciando os roteadores
+const loginProfessor = new LoginProfessorRouter;
 const loginRouter = new LoginRouter();
 const alunoRouter = new AlunoRouter();
 const professorRouter = new ProfessorRouter();
@@ -44,6 +47,10 @@ app.post('/token/novo', (req, res) => {
 // Definindo as rotas para cada roteador
 app.use('/login',
     loginRouter.createRoutes()
+);
+
+app.use('/loginprofessor',
+    loginProfessor.createRoutes()
 );
 
 app.use('/alunos',

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Aluno - Sistema Escolar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            padding: 10px;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: #575757;
+            border-radius: 5px;
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+            padding: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .card p {
+            margin-bottom: 10px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Portal do Aluno</h1>
+    <p>Bem-vindo ao Sistema Escolar</p>
+</header>
+
+<nav>
+    <a href="#notas">Notas</a>
+    <a href="#presenca">Presença</a>
+    <a href="#agenda">Agenda de Aulas</a>
+    <a href="#trabalhos">Trabalhos</a>
+    <a href="#mensagens">Mensagens</a>
+</nav>
+
+<div class="container">
+    <!-- Card de Notas -->
+    <div class="card" id="notas">
+        <h3>Minhas Notas</h3>
+        <p>Acesse suas notas por disciplina:</p>
+        <ul>
+            <li>Matemática: 8.5</li>
+            <li>Português: 7.0</li>
+            <li>História: 9.2</li>
+            <li>Geografia: 8.0</li>
+        </ul>
+        <a href="#" class="button">Ver mais detalhes</a>
+    </div>
+
+    <!-- Card de Presença -->
+    <div class="card" id="presenca">
+        <h3>Minha Presença</h3>
+        <p>Suas presenças e faltas:</p>
+        <ul>
+            <li>Total de Aulas: 80</li>
+            <li>Presenças: 75</li>
+            <li>Faltas: 5</li>
+        </ul>
+        <a href="#" class="button">Ver mais detalhes</a>
+    </div>
+
+    <!-- Card de Agenda de Aulas -->
+    <div class="card" id="agenda">
+        <h3>Agenda de Aulas</h3>
+        <p>Próximas aulas:</p>
+        <ul>
+            <li>Matemática - 20/10/2024 - 10:00</li>
+            <li>Geografia - 21/10/2024 - 14:00</li>
+            <li>História - 22/10/2024 - 08:00</li>
+        </ul>
+        <a href="#" class="button">Ver agenda completa</a>
+    </div>
+
+    <!-- Card de Trabalhos -->
+    <div class="card" id="trabalhos">
+        <h3>Trabalhos Pendentes</h3>
+        <p>Envie seus trabalhos e veja os prazos:</p>
+        <ul>
+            <li>Trabalho de Matemática - Prazo: 25/10/2024</li>
+            <li>Redação de Português - Prazo: 30/10/2024</li>
+        </ul>
+        <a href="#" class="button">Enviar Trabalho</a>
+    </div>
+
+    <!-- Card de Mensagens -->
+    <div class="card" id="mensagens">
+        <h3>Mensagens</h3>
+        <p>Mensagens dos professores e administração:</p>
+        <ul>
+            <li>Mensagem de Matemática: "Lembrem-se do trabalho!"</li>
+            <li>Mensagem da Coordenação: "Prova final será em 15/12/2024"</li>
+        </ul>
+        <a href="#" class="button">Ver todas as mensagens</a>
+    </div>
+</div>
+
+</body>
+</html>
