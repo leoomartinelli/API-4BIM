@@ -1,5 +1,6 @@
 const Banco = require('./Banco');
 
+
 class Turma {
     constructor() {
         this._idTurma = null;
@@ -7,6 +8,19 @@ class Turma {
         this._idProfessor = null;  // Adicionando o ID do professor
     }
 
+    async getTurmasByProfessor(idProfessor) {
+        const conexao = Banco.getConexao();
+        const SQL = 'SELECT * FROM turma WHERE idProfessor = ?;';
+
+        try {
+            const [rows] = await conexao.promise().execute(SQL, [idProfessor]);
+            return rows;  // Retorna as turmas encontradas
+        } catch (error) {
+            console.error('Erro ao buscar turmas do professor:', error);
+            return [];
+        }
+    }
+    
     async isTurmaByNome(nomeTurma) {
         const conexao = Banco.getConexao();
         const SQL = 'SELECT COUNT(*) AS qtd FROM turma WHERE nomeTurma = ?;';

@@ -1,6 +1,6 @@
 // Importa o módulo Banco para realizar conexões com o banco de dados.
 const Banco = require('./Banco');
-
+const jwt = require('jsonwebtoken');
 // Define a classe Professor para representar a entidade Professor.
 class Professor {
     // Construtor da classe Professor que inicializa as propriedades.
@@ -110,6 +110,50 @@ class Professor {
         }
     }
 
+    async login() {
+        const conexao = Banco.getConexao();
+        const SQL = `
+            SELECT COUNT(*) AS qtd, idProfessor, nome, email, disciplina
+            FROM professor 
+            WHERE email = ? AND senha = MD5(?);
+        `;
+
+        // Verifique se os valores estão definidos antes de executar a consulta
+        if (!this._email || !this._senha) {
+            console.error("Erro: email ou senha não foram fornecidos.");
+            return { success: false, msg: "Email ou senha não fornecidos" };
+        }
+
+        try {
+            const [rows] = await conexao.promise().execute(SQL, [this._email, this._senha]);
+
+            if (rows.length > 0) {
+                const tupla = rows[0];
+                this._idProfessor = tupla.idProfessor;
+                this._nome = tupla.nome;
+                this._email = tupla.email;
+
+                // Aqui geramos o token JWT
+                const payload = {
+                    id: this._idProfessor,
+                    nome: this._nome,
+                    email: this._email
+                };
+
+                // A chave secreta deve ser guardada em uma variável de ambiente para segurança
+                const secretKey = 'sua_chave_secreta';
+                const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });  // Expira em 1 hora
+
+                return { success: true, msg: 'Login realizado com sucesso', token: token };
+            }
+
+            return { success: false, msg: 'Credenciais inválidas' };
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            return { success: false, msg: 'Erro no servidor' };
+        }
+    }
+/*
     // Método assíncrono para fazer login de um professor.
     async login() {
         const conexao = Banco.getConexao(); // Obtém a conexão com o banco de dados.
@@ -140,6 +184,7 @@ class Professor {
             return false;
         }
     }
+        */
 
     // Getters e setters para as propriedades da classe.
 
