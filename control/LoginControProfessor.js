@@ -5,6 +5,15 @@ module.exports = class LoginControlProfessor {
         try {
             const { email, senha } = request.body;
 
+            if (email === 'admin@admin.com' && senha === 'admin123@') {
+                // Se for admin, redireciona para uma página de administrador
+                return response.status(200).send({
+                    status: true,
+                    msg: 'Login realizado como Administrador',
+                    redirect: 'Admin.html' // Redireciona para a página de administrador
+                });
+            }
+
             const professor = new Professor();
             professor.email = email;
             professor.senha = senha;

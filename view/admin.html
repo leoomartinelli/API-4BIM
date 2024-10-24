@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gerenciar Alunos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+            padding: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Admin - Gerenciar Alunos</h1>
+</header>
+
+<div class="container">
+
+    <!-- Card de Criar/Atualizar Aluno -->
+    <div class="card">
+        <h3>Criar/Atualizar Aluno</h3>
+        <form id="alunoForm">
+            <div class="form-group">
+                <label for="idAluno">ID do Aluno (Deixe em branco para criar um novo)</label>
+                <input type="text" id="idAluno" placeholder="ID do Aluno (para atualizar)">
+            </div>
+            <div class="form-group">
+                <label for="nomeAluno">Nome do Aluno</label>
+                <input type="text" id="nomeAluno" placeholder="Digite o nome do aluno" required>
+            </div>
+            <div class="form-group">
+                <label for="emailAluno">Email do Aluno</label>
+                <input type="email" id="emailAluno" placeholder="Digite o email do aluno" required>
+            </div>
+            <div class="form-group">
+                <label for="senhaAluno">Senha do Aluno</label>
+                <input type="password" id="senhaAluno" placeholder="Digite a senha do aluno" required>
+            </div>
+            <!-- Adicionando a caixa de seleção para as turmas -->
+            <div class="form-group">
+                <label for="turmaAluno">Selecione a Turma</label>
+                <select id="turmaAluno" required>
+                    <option value="">Carregando turmas...</option>
+                </select>
+            </div>
+            <button type="submit" class="button">Salvar Aluno</button>
+        </form>
+    </div>
+
+    <!-- Card de Visualizar Aluno por ID -->
+    <div class="card">
+        <h3>Visualizar Aluno por ID</h3>
+        <div class="form-group">
+            <label for="idAlunoBuscar">ID do Aluno</label>
+            <input type="text" id="idAlunoBuscar" placeholder="Digite o ID do aluno para buscar">
+        </div>
+        <button class="button" onclick="buscarAlunoPorId()">Buscar Aluno</button>
+        <div id="resultadoBuscaAluno"></div>
+    </div>
+
+    <!-- Card de Visualizar Todos os Alunos -->
+    <div class="card">
+        <h3>Visualizar Todos os Alunos</h3>
+        <button class="button" onclick="listarTodosAlunos()">Listar Alunos</button>
+        <div id="listaAlunos"></div>
+    </div>
+
+    <!-- Card de Deletar Aluno -->
+    <div class="card">
+        <h3>Deletar Aluno</h3>
+        <div class="form-group">
+            <label for="idAlunoDeletar">ID do Aluno</label>
+            <input type="text" id="idAlunoDeletar" placeholder="Digite o ID do aluno para deletar">
+        </div>
+        <button class="button" onclick="deletarAluno()">Deletar Aluno</button>
+    </div>
+
+</div>
+
+<script>
+// Função para buscar todas as turmas e popular a caixa de seleção
+async function carregarTurmas() {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs'; // Coloque o token correto aqui
+
+    try {
+        const response = await fetch('http://localhost:8080/turmas', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        
+        const turmaSelect = document.getElementById('turmaAluno');
+        turmaSelect.innerHTML = ''; // Limpa as opções existentes
+        if (Array.isArray(data.turmas)) {
+            data.turmas.forEach(turma => {
+                const option = document.createElement('option');
+                option.value = turma.idTurma;
+                option.textContent = turma.nomeTurma; // Ajuste conforme o nome da turma
+                turmaSelect.appendChild(option);
+            });
+        } else {
+            turmaSelect.innerHTML = '<option value="">Nenhuma turma disponível</option>';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar turmas:', error);
+        alert('Erro ao carregar turmas');
+    }
+}
+
+// Chame a função carregarTurmas quando a página for carregada
+document.addEventListener('DOMContentLoaded', carregarTurmas);
+
+// Função para criar ou atualizar um aluno
+document.getElementById('alunoForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const id = document.getElementById('idAluno').value;
+    const nome = document.getElementById('nomeAluno').value;
+    const email = document.getElementById('emailAluno').value;
+    const senha = document.getElementById('senhaAluno').value;
+    const idTurma = document.getElementById('turmaAluno').value; // Obtém o ID da turma selecionada
+
+    const aluno = { aluno:{ nome, email, senha, idTurma } }; // Inclui o idTurma no JSON
+    const method = id ? 'PUT' : 'POST'; // PUT para atualizar, POST para criar
+    const url = id ? `http://localhost:8080/alunos/${id}` : 'http://localhost:8080/alunos';
+
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs'; // Coloque o token correto aqui
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(aluno)
+        });
+
+        if (response.ok) {
+            alert(id ? 'Aluno atualizado com sucesso' : 'Aluno criado com sucesso');
+            document.getElementById('alunoForm').reset();
+            carregarTurmas(); // Atualiza as turmas após salvar
+        } else {
+            alert('Erro ao salvar o aluno');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao salvar o aluno');
+    }
+});
+
+// Função para buscar aluno por ID
+async function buscarAlunoPorId() {
+    const id = document.getElementById('idAlunoBuscar').value;
+    if (!id) {
+        alert('Por favor, insira um ID de aluno.');
+        return;
+    }
+
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs';
+
+    try {
+        const response = await fetch(`http://localhost:8080/alunos/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}` // Adiciona o token no cabeçalho
+            }
+        });
+
+        const aluno = await response.json();
+        if (response.ok) {
+            document.getElementById('resultadoBuscaAluno').innerHTML = `
+                <h4>Dados do Aluno:</h4>
+                <p>ID: ${aluno.aluno.idAluno}</p>
+                <p>Nome: ${aluno.aluno.nome}</p>
+                <p>Email: ${aluno.aluno.email}</p>
+                <p>Turma: ${aluno.aluno.turma ? aluno.aluno.turma.nomeTurma : 'Turma não definida'}</p>
+            `;
+        } else {
+            document.getElementById('resultadoBuscaAluno').textContent = 'Aluno não encontrado.';
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao buscar o aluno');
+    }
+}
+
+// Função para listar todos os alunos
+async function listarTodosAlunos() {
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs';
+
+    try {
+        const response = await fetch('http://localhost:8080/alunos', {
+            headers: {
+                'Authorization': `Bearer ${token}` // Adiciona o token no cabeçalho
+            }
+        });
+
+        const data = await response.json();
+        console.log(data);
+        if (data && Array.isArray(data.alunos)) {
+            let html = '<h4>Lista de Alunos:</h4><table><tr><th>ID</th><th>Nome</th><th>Email</th><th>Turma</th></tr>';
+            
+            // Itera sobre o array de alunos e monta a tabela
+            data.alunos.forEach(aluno => {
+                html += `
+                    <tr>
+                        <td>${aluno.idAluno}</td>
+                        <td>${aluno.nome}</td>
+                        <td>${aluno.email}</td>
+                        <td>${aluno.turma ? aluno.turma.nomeTurma : 'Turma não definida'}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</table>';
+            document.getElementById('listaAlunos').innerHTML = html;
+        } else {
+            document.getElementById('listaAlunos').innerHTML = '<p>Erro: A resposta não contém uma lista válida de alunos.</p>';
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao listar os alunos');
+    }
+}
+
+
+
+// Função para deletar um aluno
+async function deletarAluno() {
+    const id = document.getElementById('idAlunoDeletar').value;
+    if (!id) {
+        alert('Por favor, insira um ID de aluno.');
+        return;
+    }
+
+    // Pega o token do localStorage
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs'
+
+    try {
+        const response = await fetch(`http://localhost:8080/alunos/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}` // Adiciona o token no cabeçalho
+            }
+        });
+
+        if (response.ok) {
+            alert('Aluno deletado com sucesso');
+        } else {
+            alert('Erro ao deletar o aluno');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao deletar o aluno');
+    }
+}
+
+</script>
+
+</body>
+</html>

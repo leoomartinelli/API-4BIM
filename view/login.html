@@ -193,6 +193,16 @@
                 body: JSON.stringify({ email: email, senha: senha })
             });
 
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                // Armazena o token JWT no localStorage
+                localStorage.setItem('token', data.token);
+                window.location.href = data.redirect; // Redireciona para Admin ou Professor
+            } else {
+                alert('Erro: Email ou senha inválidos');
+            }
+           
             if (response.status === 401) {
                 // Se o login falhar, exibe uma mensagem de erro
                 const errorMessage = document.getElementById('errorMessage');
