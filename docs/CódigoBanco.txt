@@ -1,0 +1,52 @@
+DROP SCHEMA IF EXISTS `aula_api_2024`;
+CREATE SCHEMA IF NOT EXISTS `aula_api_2024` DEFAULT CHARACTER SET utf8;
+USE `aula_api_2024`;
+
+-- Tabela Professor
+CREATE TABLE IF NOT EXISTS `aula_api_2024`.`Professor` (
+  `idProfessor` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(128) NOT NULL,
+  `email` VARCHAR(64) NOT NULL,
+  `senha` VARCHAR(64) NOT NULL,
+  `disciplina` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`idProfessor`),
+  UNIQUE INDEX `idProfessor_UNIQUE` (`idProfessor` ASC),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC)
+) ENGINE = InnoDB;
+
+-- Tabela Turma
+CREATE TABLE IF NOT EXISTS `aula_api_2024`.`Turma` (
+  `idTurma` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nomeTurma` VARCHAR(64) NOT NULL,
+  `idProfessor` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`idTurma`),
+  FOREIGN KEY (`idProfessor`) REFERENCES `aula_api_2024`.`Professor` (`idProfessor`)
+  ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+-- Tabela Aluno
+CREATE TABLE IF NOT EXISTS `aula_api_2024`.`Aluno` (
+  `idAluno` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(128) NOT NULL,
+  `email` VARCHAR(64) NOT NULL,
+  `senha` VARCHAR(64) NOT NULL,
+  `idTurma` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`idAluno`),
+  UNIQUE INDEX `idAluno_UNIQUE` (`idAluno` ASC),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC),
+  FOREIGN KEY (`idTurma`) REFERENCES `aula_api_2024`.`Turma` (`idTurma`)
+  ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- Inserção de dados na tabela Professor
+INSERT INTO `aula_api_2024`.`Professor` (`nome`, `email`, `senha`, `disciplina`) 
+VALUES ('Maria Souza', 'maria.souza@escola.com', MD5('senha123'), 'Matemática');
+
+-- Inserção de dados na tabela Turma
+INSERT INTO `aula_api_2024`.`Turma` (`nomeTurma`, `idProfessor`) 
+VALUES ('Turma A', 1);
+
+-- Inserção de dados na tabela Aluno
+INSERT INTO `aula_api_2024`.`Aluno` (`nome`, `email`, `senha`, `idTurma`) 
+VALUES ('João Silva', 'joao.silva@escola.com', MD5('senha123'), 1);
