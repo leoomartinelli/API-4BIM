@@ -252,8 +252,9 @@ async function buscarAlunoPorId() {
 
 // Função para listar todos os alunos
 async function listarTodosAlunos() {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs';
-
+    //const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0IiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdCIsInN1YiI6ImFjZXNzb19zaXN0ZW1hIiwiaWF0IjoxNzI5MTkzMTQ5LCJleHAiOjE3MzE3ODUxNDksIm5iZiI6MTcyOTE5MzE0OSwianRpIjoiZjhhNjgxODBjNTM1MDAxODg5NWUwYzA3YWQwNjIyYWQiLCJlbWFpbCI6Im1hcmlhLnNvdXphQGVzY29sYS5jb20iLCJyb2xlIjoiYWRtaW4iLCJuYW1lIjoiUHJvZmVzc29yYSBNYXJpYSIsImlkRnVuY2lvbmFyaW8iOjF9.9W3O3_IpNQXLyW9StJoxdgt_4nviWphPiEkyzGahwWs';
+    const token = localStorage.getItem('token');
+    console.log(token);
     try {
         const response = await fetch('http://localhost:8080/alunos', {
             headers: {

@@ -174,53 +174,45 @@
     }
 
     document.getElementById('loginProfessor').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Previne o envio padrão do formulário
+    event.preventDefault(); // Previne o envio padrão do formulário
 
-        // Esconde a mensagem de erro antes de cada tentativa de login
-        document.getElementById('errorMessage').style.display = 'none';
+    // Esconde a mensagem de erro antes de cada tentativa de login
+    document.getElementById('errorMessage').style.display = 'none';
 
-        // Obtém os valores do formulário
-        const email = document.getElementById('emailProfessor').value;
-        const senha = document.getElementById('senhaProfessor').value;
+    // Obtém os valores do formulário
+    const email = document.getElementById('emailProfessor').value;
+    const senha = document.getElementById('senhaProfessor').value;
 
-        // Fazendo a requisição de login para o backend
-        try {
-            const response = await fetch('http://localhost:8080/loginProfessor', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email: email, senha: senha })
-            });
+    // Fazendo a requisição de login para o backend
+    try {
+        const response = await fetch('http://localhost:8080/loginProfessor', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, senha: senha })
+        });
 
-            const data = await response.json();
+        const data = await response.json();
+        console.log(data);
+        if (data.status === true) {
+        
+         localStorage.setItem('token', data.token);
 
-            if (response.ok && data.token) {
-                // Armazena o token JWT no localStorage
-                localStorage.setItem('token', data.token);
-                window.location.href = data.redirect; // Redireciona para Admin ou Professor
-            } else {
-                alert('Erro: Email ou senha inválidos');
-            }
-           
-            if (response.status === 401) {
-                // Se o login falhar, exibe uma mensagem de erro
-                const errorMessage = document.getElementById('errorMessage');
-                errorMessage.style.display = 'block';
-                errorMessage.textContent = 'Erro: Email ou senha inválidos';
-            } else if (response.ok) {
-                // Se o login for bem-sucedido, redireciona para Professor.html
-                window.location.href = 'Professor.html';
-            } else {
-                throw new Error('Erro desconhecido ao fazer login');
-            }
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = 'Erro: Não foi possível realizar o login.';
+            // Redireciona para a URL especificada em `redirect`
+            window.location.href = data.redirect;
+        } else {
+            // Exibe a mensagem de erro
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorMessage').textContent = 'Erro: ' + data.msg;
         }
-    });
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        const errorMessage = document.getElementById('errorMessage');
+        errorMessage.style.display = 'block';
+        errorMessage.textContent = 'Erro: Não foi possível realizar o login.';
+    }
+});
     
 </script>
 
