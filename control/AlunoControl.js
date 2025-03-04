@@ -100,9 +100,10 @@ module.exports = class AlunoControl {
             msg: resultado ? 'Aluno encontrado' : 'Aluno não encontrado',
             aluno: resultado
         };
-        // Envia a resposta HTTP com status 200 e o objeto de resposta.
+        // Envia a resposta HTTP com status 200 e o objesto de resposta.
         response.status(200).send(objResposta);
     }
+
 
     // Método assíncrono para criar alunos a partir de um arquivo CSV.
     async createByCSV(request, response) {
